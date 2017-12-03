@@ -7,7 +7,7 @@ const requireAuth = passport.authenticate('jwt', { session: false });
 const requireSignin = passport.authenticate('local', { session: false });
 
 const router = function(app) {
-  app.get('/', requireAuth, function(req, res) {
+  app.get('/', function(req, res) {
     res.send({ message: 'Hello you are authenticated'});
   });
 
