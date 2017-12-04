@@ -1,23 +1,28 @@
-const auth = require('./auth');
+const express = require('express');
+
 const passport = require('passport');
 const passportService = require('./passportService');
-const articles = require('./routes/articles');
+
+const users = require('./user/routes');
+const articles = require('./article/routes');
+
+const path = require('path');
 
 const requireAuth = passport.authenticate('jwt', { session: false });
 const requireSignin = passport.authenticate('local', { session: false });
 
+const staticPath = 'public/www';
+
 const router = function(app) {
-  app.get('/', function(req, res) {
-    res.send({ message: 'Hello you are authenticated'});
-  });
+  app.use(express.static(staticPath));
 
-  app.post('/signin', requireSignin, auth.signin);
-  app.post('/signup', auth.signup);
+  app.use('/api/', articles);
+  app.use('/api/', users);
 
-  // articles
-  app.get('/articles', requireAuth, articles.getAll);
-  app.post('/articles', requireAuth, articles.createArticle);
-  app.post('/articles/delete', requireAuth, articles.deleteArticles);
+  app.use('/', express.static(staticPath));
+  app.use('/articles', express.static(staticPath));
+  app.use('/signin', express.static(staticPath));
+  app.use('/signup', express.static(staticPath));
 };
 
 module.exports = router;
