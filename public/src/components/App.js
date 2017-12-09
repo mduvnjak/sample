@@ -8,6 +8,7 @@ import Signin from './auth/Signin';
 import Signup from './auth/Signup';
 import Signout from './auth/Signout';
 import Articles from './Articles';
+import ArticleForm from './ArticleForm';
 import Welcome from './Welcome';
 import NotFound from './NotFound';
 
@@ -21,6 +22,7 @@ class App extends Component {
 						<Route path="/signup" component={Signup} />
 						<Route path="/signin" component={Signin} />
 						<Route path="/signout" component={Signout} />
+						<Route path="/articles/create" component={ArticleForm} />
 						<Route path="/articles" component={RequireAuth(Articles)} />
 						<Route exact path="/" component={Welcome} />
 						<Route component={NotFound} />

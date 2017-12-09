@@ -19,6 +19,7 @@ const router = function(app) {
 
   app.use('/', express.static(staticPath));
   app.use('/articles', express.static(staticPath));
+  app.use('/articles/create', express.static(staticPath));
   app.use('/signin', express.static(staticPath));
   app.use('/signup', express.static(staticPath));
   app.use('/signout', express.static(staticPath));

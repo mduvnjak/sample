@@ -43,7 +43,7 @@ exports.createArticle = function(req, res, next) {
 exports.deleteArticles = function(req, res, next) {
   const articles = req.body.articles;
 
-  Article.remove({'_id': articles, 'author._id': req.user._id}, function(err, articles) {
+  Article.remove({'_id': articles }, function(err, articles) {
     if(err) {
       return next(err);
     }

@@ -21,6 +21,25 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel-loader',
       },
+      {
+        test: /\.css$/,
+        loaders: [ 'style-loader', 'css-loader', 'resolve-url-loader']
+      },
+      {
+        test   : /\.scss$/,
+        loaders: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        loaders: [
+          'url-loader?limit=10000',
+          'img-loader'
+        ]
+      },
+      {
+        test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
+        loader: 'url-loader?limit=30000&name=[name]-[hash].[ext]'
+      }
     ],
   },
   resolve: {

@@ -5,6 +5,9 @@ import {
   REGISTER_USER, REGISTER_USER_SUCCESS, REGISTER_USER_FAILED,
   UNAUTH_USER,
   FETCH_ARTICLES, FETCH_ARTICLES_FAILED,
+  CREATE_ARTICLE, CREATE_ARTICLE_FAILED,
+  ADD_TO_DELETE_LIST, REMOVE_FROM_DELETE_LIST,
+  DELETE_ARTICLES, DELETE_ARTICLES_FAILED
 } from './types';
 
 export function signinUser({ email, password }) {
@@ -91,6 +94,94 @@ export function getArticles() {
           type: UNAUTH_USER
         })
       }
+    });
+  }
+}
+
+export function createArticle(article) {
+  const token = localStorage.getItem('token');
+  return function(dispatch) {
+    axios({
+      method: 'post',
+      url: '/api/articles/create',
+      headers: {'authorization': token},
+      data: article
+    })
+    .then(function (res) {
+      dispatch({
+        type: CREATE_ARTICLE,
+        payload: res.data.message
+      })
+      setTimeout(function () {
+        history.push('/articles');
+      }, 1000);
+    })
+    .catch(function (err) {
+      dispatch({
+        type: CREATE_ARTICLE_FAILED,
+        payload: err.response.data
+      })
+      if (err.response.status === 401) {
+        dispatch({
+          type: UNAUTH_USER
+        })
+      }
+    });
+  }
+}
+
+export function markForDeletion(isChecked, id) {
+  return function(dispatch, getState) {
+    const list = getState().articles.deleteList || [];
+
+    if (isChecked) {
+        if (list.indexOf(id) < 0) {
+          list.push(id);
+        }
+        dispatch({
+          type: ADD_TO_DELETE_LIST,
+          payload: list
+        })
+    } else {
+      if (list.indexOf(id) > -1) {
+        list.splice(list.indexOf(id), 1);
+      }
+      dispatch({
+        type: REMOVE_FROM_DELETE_LIST,
+        payload: list
+      })
+    }
+
+  }
+}
+
+export function deleteArticles() {
+  return function(dispatch, getState) {
+    const list = getState().articles.deleteList || [];
+    const token = localStorage.getItem('token');
+
+    axios({
+      method: 'post',
+      url: '/api/articles/delete',
+      headers: {'authorization': token},
+      data: {
+        articles: list
+      }
+    })
+    .then(function (res) {
+      dispatch({
+        type: DELETE_ARTICLES,
+        payload: res.data.n
+      });
+      setTimeout(function () {
+        history.go('/articles');
+      }, 1000);
+    })
+    .catch(function (err) {
+      dispatch({
+        type: DELETE_ARTICLES,
+        payload: err
+      })
     });
   }
 }

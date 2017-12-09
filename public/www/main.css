@@ -4,9 +4,37 @@ html {
 body {
   min-height: 100%;
 }
-.article-item {
+h1 {
+  margin: 20px 0 !important;
+}
+.lista {
   display: inline-block;
-  padding: 10px;
+  overflow: hidden;
+  /*width: 25%;*/
+  vertical-align: top;
+  visibility: visible;
+}
+.actions-container {
+  display: inline-flex;
+  margin: 15px 0;
+}
+.actions-container div {
+  padding: 0 20px;
+}
+.article {
+  display: flex;
+  margin: 10px auto;
+  border: 1px solid #ebebeb;
+  padding: 0;
+}
+.article-container {
+  max-width: 80%;
+  margin: 0 auto;
+}
+.article-item {
+  padding: 10px 5px;
+  text-align: left;
+  min-width: 50px;
 }
 .error {
   color: red

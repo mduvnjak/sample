@@ -10,9 +10,10 @@ class Header extends Component {
 				<li className="nav-item" key={2}><Link className="nav-link" to="/signup">Sign Up</Link></li>
 			];
 		} else {
-			return (
-				<li className="nav-item"><Link className="nav-link" to="/signout">Sign Out</Link></li>
-			);
+			return [
+				<li className="nav-item" key={1}><Link className="nav-link" to="/signout">Sign Out</Link></li>,
+				<li className="nav-item" key={2}><Link className="nav-link" to="/articles">Articles</Link></li>
+			];
 		}
 	}
 	render() {
@@ -36,7 +37,6 @@ class Header extends Component {
 		        </ul>
 					</div>
 	      </nav>
-				<div className="container text-center">{this.props.message}</div>
 			</div>
     );
   }
