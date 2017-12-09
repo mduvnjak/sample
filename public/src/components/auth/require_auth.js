@@ -10,15 +10,12 @@ export default function(ComposedComponent) {
     componentWillMount() {
       if (!this.props.authenticated) {
         this.props.history.push('/');
-        console.log(this, this.context)
-        console.log(React.PropTypes)
       }
     }
 
     componentWillUpdate(nextProps) {
       if (!nextProps.authenticated) {
         nextProps.history.push('/');
-        console.log(this, this.context)
       }
     }
 
@@ -28,7 +25,6 @@ export default function(ComposedComponent) {
   }
 
   function mapStateToProps(state) {
-    console.log(state)
     return { authenticated: state.auth.authenticated };
   }
 
