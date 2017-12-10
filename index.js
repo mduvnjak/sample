@@ -8,7 +8,8 @@ const mongoose = require('mongoose');
 const app = express();
 const router = require('./router');
 
-const mongo_uri = process.env.MONGODB_URI || 'mongodb://localhost:auth/auth'
+const mongo_uri = process.env.MONGODB_URI || 'mongodb://localhost:auth/auth';
+console.log(mongo_uri);
 mongoose.connect(mongo_uri);
 
 app.use(morgan('combined'));
