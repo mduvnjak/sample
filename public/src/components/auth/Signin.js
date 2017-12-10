@@ -41,6 +41,9 @@ class Signin extends Component {
     const { handleSubmit, fields: { email, password }} = this.props;
     return (
       <div className="container">
+        <div className="text-center">
+          <h4>Enter your email and password to signin</h4>
+        </div>
         <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
           <Field name="email" component={inputField} type="email" label="Email" />
           <Field name="password" component={inputField} type="password" label="Password" />

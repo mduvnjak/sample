@@ -7,7 +7,14 @@ const articleSchema = new Schema({
   author_name: String,
   title: String,
   url: String,
-  votes: [String]
+  votes: {
+    type: Schema.Types.Mixed,
+    default: {}
+  },
+  rating: {
+    type: Number,
+    default: 0
+  }
 });
 
 const ModelClass = mongoose.model('article', articleSchema);

@@ -9,5 +9,6 @@ const requireAuth = passport.authenticate('jwt', { session: false });
 router.get('/articles', requireAuth, ArticleController.getAll);
 router.post('/articles/create', requireAuth, ArticleController.createArticle);
 router.post('/articles/delete', requireAuth, ArticleController.deleteArticles);
+router.post('/articles/votes', requireAuth, ArticleController.voteArticle);
 
 module.exports = router;

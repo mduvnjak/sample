@@ -45,6 +45,9 @@ class Signup extends Component {
     } = this.props;
     return (
       <div className="container">
+        <div className="text-center">
+          <h4>Signup page</h4>
+        </div>
         <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
           <Field name="email" component={inputField} type="email" label="Email" />
           <Field name="password" component={inputField} type="password" label="Password" />

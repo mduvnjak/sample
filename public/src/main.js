@@ -8,6 +8,7 @@ import reduxThunk from 'redux-thunk';
 import App from './components/App';
 
 import reducers from './reducers';
+import * as actions from './actions';
 import { AUTH_USER_SUCCESS } from './actions/types';
 
 const createStoreWithMiddleware = applyMiddleware(reduxThunk)(createStore);
@@ -20,6 +21,7 @@ const token = localStorage.getItem('token');
 
 if (token) {
   store.dispatch({ type: AUTH_USER_SUCCESS });
+	store.dispatch(actions.fetchUser(token));
 }
 
 

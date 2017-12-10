@@ -28,8 +28,7 @@ exports.createArticle = function(req, res, next) {
     author: req.user,
     author_name: author_name,
     title: title,
-    url: url,
-    votes: []
+    url: url
    });
 
   article.save(function(err) {
@@ -51,3 +50,39 @@ exports.deleteArticles = function(req, res, next) {
     res.send(articles);
   });
 };
+
+exports.voteArticle = function(req, res, next) {
+  const userId = req.body.userId;
+  const articleId = req.body.articleId;
+  const vote = req.body.vote;
+
+  Article.findOne({ '_id': articleId }, function(err, article) {
+    if (err) {
+      res.send({
+        error:"No such article"
+      })
+    }
+
+    const votes = article.votes;
+
+    votes[userId] = vote; // can be 1 or -1
+
+    let voteCount = 0;
+    for(key in votes) {
+      voteCount += votes[key];
+    }
+
+    article.rating = voteCount;
+
+    article.save(function(err, article) {
+      if (err) {
+        res.send({
+          error: 'Cannot update votes'
+        });
+      }
+
+      res.send(article);
+    });
+  });
+
+}

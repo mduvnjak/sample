@@ -55,6 +55,7 @@ class ArticleForm extends Component {
     const { handleSubmit } = this.props;
     return (
       <div className="container text-center">
+        <h4>Fill required fields to create article</h4>
         <div className="alert">
         {this.props.message && <div><strong>Oops!</strong> {this.props.message}</div>}
         </div>

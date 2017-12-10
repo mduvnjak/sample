@@ -4,7 +4,7 @@ html {
 body {
   min-height: 100%;
 }
-h1 {
+h1, h4 {
   margin: 20px 0 !important;
 }
 .lista {
@@ -35,6 +35,19 @@ h1 {
   padding: 10px 5px;
   text-align: left;
   min-width: 50px;
+}
+.article-item.delete {
+  position: absolute;
+  right: 0;
+}
+i.fa {
+  padding: 0 5px;
+}
+.fa.fa-thumbs-up {
+  color: green;
+}
+.fa.fa-thumbs-down {
+  color: red;
 }
 .error {
   color: red

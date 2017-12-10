@@ -60,7 +60,9 @@ class Articles extends Component {
           </div>
         </div>
         <div className="text-left">
-          {this.props.message && <div className="text-center allert">Deleted {this.props.message} articles</div>}
+          {!!this.props.message &&
+            <div className="text-center allert">Deleted {this.props.message} articles</div>
+          }
           {this.renderArticles(this.props.articles)}
         </div>
       </div>

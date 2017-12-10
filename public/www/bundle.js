@@ -1204,6 +1204,7 @@ function baseGetTag(value) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.fetchUser = fetchUser;
 exports.signinUser = signinUser;
 exports.registerUser = registerUser;
 exports.authError = authError;
@@ -1213,6 +1214,7 @@ exports.getArticles = getArticles;
 exports.createArticle = createArticle;
 exports.markForDeletion = markForDeletion;
 exports.deleteArticles = deleteArticles;
+exports.voteArticle = voteArticle;
 
 var _axios = __webpack_require__(367);
 
@@ -1226,6 +1228,24 @@ var _types = __webpack_require__(40);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function fetchUser(token) {
+  return function (dispatch) {
+    (0, _axios2.default)({
+      method: 'post',
+      url: '/api/user',
+      headers: { 'authorization': token }
+    }).then(function (response) {
+      dispatch({
+        type: _types.FETCH_USER,
+        payload: response.data
+      });
+    }).catch(function (err) {
+      dispatch({ type: _types.FETCH_USER_FAILED });
+      // dispatch(authError('anuthorized'));
+    });
+  };
+}
+
 function signinUser(_ref) {
   var email = _ref.email,
       password = _ref.password;
@@ -1236,7 +1256,10 @@ function signinUser(_ref) {
     });
 
     _axios2.default.post('/api/login', { email: email, password: password }).then(function (response) {
-      dispatch({ type: _types.AUTH_USER_SUCCESS });
+      dispatch({
+        type: _types.AUTH_USER_SUCCESS,
+        payload: response.data
+      });
       localStorage.setItem('token', response.data.token);
       _history2.default.push('/articles');
     }).catch(function (err) {
@@ -1389,6 +1412,33 @@ function deleteArticles() {
       dispatch({
         type: _types.DELETE_ARTICLES,
         payload: err
+      });
+    });
+  };
+}
+
+function voteArticle(userId, articleId, vote) {
+  var token = localStorage.getItem('token');
+
+  return function (dispatch) {
+    (0, _axios2.default)({
+      method: 'post',
+      url: '/api/articles/votes',
+      headers: { 'authorization': token },
+      data: {
+        userId: userId,
+        articleId: articleId,
+        vote: vote
+      }
+    }).then(function (response) {
+      dispatch({
+        type: _types.VOTE_SUCCESS,
+        payload: response
+      });
+    }).catch(function (err) {
+      dispatch({
+        type: _types.VOTE_FAILED
+
       });
     });
   };
@@ -2454,6 +2504,9 @@ var AUTH_USER = exports.AUTH_USER = 'AUTH_USER';
 var AUTH_USER_SUCCESS = exports.AUTH_USER_SUCCESS = 'AUTH_USER_SUCCESS';
 var AUTH_USER_FAILED = exports.AUTH_USER_FAILED = 'AUTH_USER_FAILED';
 
+var FETCH_USER = exports.FETCH_USER = 'FETCH_USER';
+var FETCH_USER_FAILED = exports.FETCH_USER_FAILED = 'FETCH_USER_FAILED';
+
 var UNAUTH_USER = exports.UNAUTH_USER = 'UNAUTH_USER';
 
 var REGISTER_USER = exports.REGISTER_USER = 'REGISTER_USER';
@@ -2471,6 +2524,9 @@ var REMOVE_FROM_DELETE_LIST = exports.REMOVE_FROM_DELETE_LIST = 'REMOVE_FROM_DEL
 
 var DELETE_ARTICLES = exports.DELETE_ARTICLES = 'DELETE_ARTICLES';
 var DELETE_ARTICLES_FAILED = exports.DELETE_ARTICLES_FAILED = 'DELETE_ARTICLES_FAILED';
+
+var VOTE_SUCCESS = exports.VOTE_SUCCESS = 'VOTE_SUCCESS';
+var VOTE_FAILED = exports.VOTE_FAILED = 'VOTE_FAILED';
 
 /***/ }),
 /* 41 */
@@ -7773,8 +7829,15 @@ var Article = function (_Component) {
 			this.props.markForDeletion(e.target.checked, e.target.value);
 		}
 	}, {
+		key: 'handleVote',
+		value: function handleVote(vote) {
+			this.props.voteArticle(this.props.auth.user.id, this.props.article._id, vote);
+		}
+	}, {
 		key: 'render',
 		value: function render() {
+			var _this2 = this;
+
 			var article = this.props.article;
 
 			return _react2.default.createElement(
@@ -7783,16 +7846,25 @@ var Article = function (_Component) {
 				_react2.default.createElement(
 					'div',
 					{ className: 'article-item' },
-					_react2.default.createElement('input', {
-						type: 'checkbox',
-						value: article._id,
-						onChange: this.handleCheckbox.bind(this)
+					_react2.default.createElement('i', {
+						className: 'fa fa-thumbs-up',
+						'aria-hidden': 'true',
+						onClick: function onClick(e) {
+							return _this2.handleVote(1);
+						}
+					}),
+					_react2.default.createElement('i', {
+						className: 'fa fa-thumbs-down',
+						'aria-hidden': 'true',
+						onClick: function onClick(e) {
+							return _this2.handleVote(-1);
+						}
 					})
 				),
 				_react2.default.createElement(
 					'div',
 					{ className: 'article-item' },
-					article.votes.length
+					article.rating
 				),
 				_react2.default.createElement(
 					'div',
@@ -7807,6 +7879,15 @@ var Article = function (_Component) {
 					'div',
 					{ className: 'article-item' },
 					article.author_name
+				),
+				_react2.default.createElement(
+					'div',
+					{ className: 'article-item delete' },
+					_react2.default.createElement('input', {
+						type: 'checkbox',
+						value: article._id,
+						onChange: this.handleCheckbox.bind(this)
+					})
 				)
 			);
 		}
@@ -8600,7 +8681,13 @@ var _reducers = __webpack_require__(419);
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
+var _actions = __webpack_require__(17);
+
+var actions = _interopRequireWildcard(_actions);
+
 var _types = __webpack_require__(40);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8611,6 +8698,7 @@ var token = localStorage.getItem('token');
 
 if (token) {
 	store.dispatch({ type: _types.AUTH_USER_SUCCESS });
+	store.dispatch(actions.fetchUser(token));
 }
 
 (0, _reactDom.render)(_react2.default.createElement(
@@ -30878,6 +30966,15 @@ var Signin = function (_Component) {
         'div',
         { className: 'container' },
         _react2.default.createElement(
+          'div',
+          { className: 'text-center' },
+          _react2.default.createElement(
+            'h4',
+            null,
+            'Enter your email and password to signin'
+          )
+        ),
+        _react2.default.createElement(
           'form',
           { onSubmit: handleSubmit(this.handleFormSubmit.bind(this)) },
           _react2.default.createElement(_reduxForm.Field, { name: 'email', component: inputField, type: 'email', label: 'Email' }),
@@ -40083,6 +40180,15 @@ var Signup = function (_Component) {
         'div',
         { className: 'container' },
         _react2.default.createElement(
+          'div',
+          { className: 'text-center' },
+          _react2.default.createElement(
+            'h4',
+            null,
+            'Signup page'
+          )
+        ),
+        _react2.default.createElement(
           'form',
           { onSubmit: handleSubmit(this.handleFormSubmit.bind(this)) },
           _react2.default.createElement(_reduxForm.Field, { name: 'email', component: inputField, type: 'email', label: 'Email' }),
@@ -40357,7 +40463,7 @@ var Articles = function (_Component) {
         _react2.default.createElement(
           'div',
           { className: 'text-left' },
-          this.props.message && _react2.default.createElement(
+          !!this.props.message && _react2.default.createElement(
             'div',
             { className: 'text-center allert' },
             'Deleted ',
@@ -43325,6 +43431,11 @@ var ArticleForm = function (_Component) {
         'div',
         { className: 'container text-center' },
         _react2.default.createElement(
+          'h4',
+          null,
+          'Fill required fields to create article'
+        ),
+        _react2.default.createElement(
           'div',
           { className: 'alert' },
           this.props.message && _react2.default.createElement(
@@ -43516,13 +43627,17 @@ exports.default = function () {
     case _types.AUTH_USER_SUCCESS:
       return _extends({}, state, { authenticated: true, error: '', message: 'loged in' });
     case _types.AUTH_USER_FAILED:
-      return _extends({}, state, { error: action.payload, message: 'login failed' });
+      return _extends({}, state, { error: action.payload.user, message: 'login failed' });
     case _types.REGISTER_USER:
       return _extends({}, state, { error: '', message: '' });
     case _types.REGISTER_USER_SUCCESS:
       return _extends({}, state, { error: '', message: 'signed in' });
     case _types.REGISTER_USER_FAILED:
       return _extends({}, state, { error: action.payload, message: 'signup failed' });
+    case _types.FETCH_USER:
+      return _extends({}, state, { user: action.payload.user });
+    case _types.FETCH_USER_FAILED:
+      return _extends({}, state, { user: null });
     case _types.UNAUTH_USER:
       return _extends({}, state, { authenticated: false, message: 'signed out' });
     case _types.FETCH_MESSAGE:
@@ -43530,7 +43645,6 @@ exports.default = function () {
     case _types.FETCH_MESSAGE_FAILED:
       return _extends({}, state, { message: 'fetch message failed' });
   }
-
   return state;
 };
 
@@ -43555,7 +43669,7 @@ exports.default = function () {
 
   switch (action.type) {
     case _types.FETCH_ARTICLES:
-      return _extends({}, state, { articles: action.payload, error: false, message: '' });
+      return _extends({}, state, { articles: action.payload, error: false, message: '', deleteList: [] });
     case _types.FETCH_ARTICLES_FAILED:
       return _extends({}, state, { articles: [], error: 'Sign in to processed' });
     case _types.CREATE_ARTICLE:
@@ -43570,6 +43684,10 @@ exports.default = function () {
       return _extends({}, state, { deleteList: [], message: action.payload });
     case _types.DELETE_ARTICLES_FAILED:
       return _extends({}, state, { deleteList: [], message: action.payload });
+    case _types.VOTE_SUCCESS:
+      return _extends({}, state, { message: 'successifuly votes' });
+    case _types.VOTE_FAILED:
+      return _extends({}, state, { message: 'vote failed' });
   }
 
   return state;

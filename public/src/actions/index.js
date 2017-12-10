@@ -3,12 +3,34 @@ import history  from '../history';
 import {
   AUTH_USER, AUTH_USER_SUCCESS, AUTH_USER_FAILED,
   REGISTER_USER, REGISTER_USER_SUCCESS, REGISTER_USER_FAILED,
+  FETCH_USER, FETCH_USER_FAILED,
   UNAUTH_USER,
   FETCH_ARTICLES, FETCH_ARTICLES_FAILED,
   CREATE_ARTICLE, CREATE_ARTICLE_FAILED,
   ADD_TO_DELETE_LIST, REMOVE_FROM_DELETE_LIST,
-  DELETE_ARTICLES, DELETE_ARTICLES_FAILED
+  DELETE_ARTICLES, DELETE_ARTICLES_FAILED,
+  VOTE_SUCCESS, VOTE_FAILED
 } from './types';
+
+export function fetchUser(token) {
+  return function(dispatch) {
+    axios({
+      method: 'post',
+      url: '/api/user',
+      headers: {'authorization': token }
+  })
+    .then(response => {
+      dispatch({
+        type: FETCH_USER,
+        payload: response.data
+      });
+    })
+    .catch((err) => {
+      dispatch({ type: FETCH_USER_FAILED })
+      // dispatch(authError('anuthorized'));
+    });
+  }
+}
 
 export function signinUser({ email, password }) {
   return function(dispatch) {
@@ -18,7 +40,10 @@ export function signinUser({ email, password }) {
 
     axios.post('/api/login', { email, password })
       .then(response => {
-        dispatch({ type: AUTH_USER_SUCCESS });
+        dispatch({
+          type: AUTH_USER_SUCCESS,
+          payload: response.data
+        });
         localStorage.setItem('token', response.data.token);
         history.push('/articles');
       })
@@ -181,6 +206,35 @@ export function deleteArticles() {
       dispatch({
         type: DELETE_ARTICLES,
         payload: err
+      })
+    });
+  }
+}
+
+export function voteArticle(userId, articleId, vote) {
+  const token = localStorage.getItem('token');
+
+  return function(dispatch) {
+    axios({
+      method: 'post',
+      url: '/api/articles/votes',
+      headers: {'authorization': token},
+      data: {
+        userId,
+        articleId,
+        vote
+      }
+    })
+    .then(function (response) {
+      dispatch({
+        type: VOTE_SUCCESS,
+        payload: response
+      })
+    })
+    .catch(function (err) {
+      dispatch({
+        type: VOTE_FAILED,
+
       })
     });
   }

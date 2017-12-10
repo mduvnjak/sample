@@ -10,9 +10,22 @@ function token(user) {
   }, config.secret);
 }
 
+exports.fetchUser = function(req, res, next) {
+  res.send({
+    user: {
+      id: req.user._id,
+      username:req.user.email
+    }
+  });
+}
+
 exports.signin = function(req, res, next) {
   res.send({
-    token: token(req.user)
+    token: token(req.user),
+    user: {
+      id: req.user._id,
+      username:req.user.email
+    }
   });
 }
 
