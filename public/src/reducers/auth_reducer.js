@@ -9,9 +9,9 @@ import {
 export default function(state = {}, action) {
   switch(action.type) {
     case AUTH_USER:
-      return { ...state, error: '', message: ''};
+      return { ...state, error: '', message: '', authenticated: true,};
     case AUTH_USER_SUCCESS:
-      return { ...state, authenticated: true, error: '', message: 'loged in' };
+      return { ...state, authenticated: true, user: action.payload.user, error: '', message: 'loged in' };
     case AUTH_USER_FAILED:
       return { ...state, error: action.payload.user , message: 'login failed' };
     case REGISTER_USER:

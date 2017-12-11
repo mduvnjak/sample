@@ -11,8 +11,9 @@ class Header extends Component {
 			];
 		} else {
 			return [
-				<li className="nav-item" key={1}><Link className="nav-link" to="/signout">Sign Out</Link></li>,
-				<li className="nav-item" key={2}><Link className="nav-link" to="/articles">Articles</Link></li>
+				<li className="nav-item" key={1}>{this.props.user && <span className="nav-link">{this.props.user.username}</span>}</li>,
+				<li className="nav-item" key={2}><Link className="nav-link" to="/signout">Sign Out</Link></li>,
+				<li className="nav-item" key={3}><Link className="nav-link" to="/articles">Articles</Link></li>
 			];
 		}
 	}
@@ -45,7 +46,8 @@ class Header extends Component {
 function mapStateToProps(state) {
 	return {
     authenticated: state.auth.authenticated,
-		message: state.auth.message
+		message: state.auth.message,
+		user: state.auth.user
   };
 }
 

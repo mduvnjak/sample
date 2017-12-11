@@ -8697,8 +8697,8 @@ var store = createStoreWithMiddleware(_reducers2.default, window.__REDUX_DEVTOOL
 var token = localStorage.getItem('token');
 
 if (token) {
-	store.dispatch({ type: _types.AUTH_USER_SUCCESS });
 	store.dispatch(actions.fetchUser(token));
+	store.dispatch({ type: _types.AUTH_USER });
 }
 
 (0, _reactDom.render)(_react2.default.createElement(
@@ -30718,6 +30718,14 @@ var Header = function (_Component) {
 				return [_react2.default.createElement(
 					'li',
 					{ className: 'nav-item', key: 1 },
+					this.props.user && _react2.default.createElement(
+						'span',
+						{ className: 'nav-link' },
+						this.props.user.username
+					)
+				), _react2.default.createElement(
+					'li',
+					{ className: 'nav-item', key: 2 },
 					_react2.default.createElement(
 						_reactRouterDom.Link,
 						{ className: 'nav-link', to: '/signout' },
@@ -30725,7 +30733,7 @@ var Header = function (_Component) {
 					)
 				), _react2.default.createElement(
 					'li',
-					{ className: 'nav-item', key: 2 },
+					{ className: 'nav-item', key: 3 },
 					_react2.default.createElement(
 						_reactRouterDom.Link,
 						{ className: 'nav-link', to: '/articles' },
@@ -30780,7 +30788,8 @@ var Header = function (_Component) {
 function mapStateToProps(state) {
 	return {
 		authenticated: state.auth.authenticated,
-		message: state.auth.message
+		message: state.auth.message,
+		user: state.auth.user
 	};
 }
 
@@ -43623,9 +43632,9 @@ exports.default = function () {
 
   switch (action.type) {
     case _types.AUTH_USER:
-      return _extends({}, state, { error: '', message: '' });
+      return _extends({}, state, { error: '', message: '', authenticated: true });
     case _types.AUTH_USER_SUCCESS:
-      return _extends({}, state, { authenticated: true, error: '', message: 'loged in' });
+      return _extends({}, state, { authenticated: true, user: action.payload.user, error: '', message: 'loged in' });
     case _types.AUTH_USER_FAILED:
       return _extends({}, state, { error: action.payload.user, message: 'login failed' });
     case _types.REGISTER_USER:
