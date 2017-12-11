@@ -62,7 +62,7 @@ exports.voteArticle = function(req, res, next) {
         error:"No such article"
       })
     }
-    const isGratherVote = article.votes[userId] < vote;
+    const isGratherVote = vote > 0;
     let initialMesage = 'You have allready voted'
     let message = isGratherVote ? 'You have upvoted.' :
     'You have downvoted.';
