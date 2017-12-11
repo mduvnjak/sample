@@ -1209,7 +1209,7 @@ exports.signinUser = signinUser;
 exports.registerUser = registerUser;
 exports.authError = authError;
 exports.signoutUser = signoutUser;
-exports.clearErrors = clearErrors;
+exports.clearMessages = clearMessages;
 exports.getArticles = getArticles;
 exports.createArticle = createArticle;
 exports.markForDeletion = markForDeletion;
@@ -1279,6 +1279,9 @@ function registerUser(user) {
         type: _types.REGISTER_USER_SUCCESS,
         res: res
       });
+      setTimeout(function () {
+        _history2.default.push('/signin');
+      }, 1000);
     }).catch(function (err) {
       dispatch({
         type: _types.REGISTER_USER_FAILED,
@@ -1304,9 +1307,9 @@ function signoutUser() {
   };
 }
 
-function clearErrors() {
+function clearMessages() {
   return {
-    type: _types.AUTH_USER
+    type: _types.CLEAR_MESSAGES
   };
 }
 
@@ -1393,6 +1396,20 @@ function deleteArticles() {
     var list = getState().articles.deleteList || [];
     var token = localStorage.getItem('token');
 
+    if (!list.length) {
+      if (!getState().articles.articles.length) {
+        dispatch({
+          type: _types.DELETE_ARTICLES_FAILED,
+          payload: 'No articles'
+        });
+      } else {
+        dispatch({
+          type: _types.DELETE_ARTICLES_FAILED,
+          payload: ' Select article to delete'
+        });
+      }
+      return false;
+    }
     (0, _axios2.default)({
       method: 'post',
       url: '/api/articles/delete',
@@ -1410,7 +1427,7 @@ function deleteArticles() {
       }, 1000);
     }).catch(function (err) {
       dispatch({
-        type: _types.DELETE_ARTICLES,
+        type: _types.DELETE_ARTICLES_FAILED,
         payload: err
       });
     });
@@ -1433,8 +1450,11 @@ function voteArticle(userId, articleId, vote) {
     }).then(function (response) {
       dispatch({
         type: _types.VOTE_SUCCESS,
-        payload: response
+        payload: response.data
       });
+      setTimeout(function () {
+        _history2.default.go('/articles');
+      }, 1000);
     }).catch(function (err) {
       dispatch({
         type: _types.VOTE_FAILED
@@ -2527,6 +2547,8 @@ var DELETE_ARTICLES_FAILED = exports.DELETE_ARTICLES_FAILED = 'DELETE_ARTICLES_F
 
 var VOTE_SUCCESS = exports.VOTE_SUCCESS = 'VOTE_SUCCESS';
 var VOTE_FAILED = exports.VOTE_FAILED = 'VOTE_FAILED';
+
+var CLEAR_MESSAGES = exports.CLEAR_MESSAGES = 'CLEAR_MESSAGES';
 
 /***/ }),
 /* 41 */
@@ -27661,9 +27683,9 @@ var _Articles = __webpack_require__(388);
 
 var _Articles2 = _interopRequireDefault(_Articles);
 
-var _ArticleForm = __webpack_require__(416);
+var _NewArticle = __webpack_require__(422);
 
-var _ArticleForm2 = _interopRequireDefault(_ArticleForm);
+var _NewArticle2 = _interopRequireDefault(_NewArticle);
 
 var _Welcome = __webpack_require__(417);
 
@@ -27706,7 +27728,7 @@ var App = function (_Component) {
 						_react2.default.createElement(_reactRouterDom.Route, { path: '/signup', component: _Signup2.default }),
 						_react2.default.createElement(_reactRouterDom.Route, { path: '/signin', component: _Signin2.default }),
 						_react2.default.createElement(_reactRouterDom.Route, { path: '/signout', component: _Signout2.default }),
-						_react2.default.createElement(_reactRouterDom.Route, { path: '/articles/create', component: _ArticleForm2.default }),
+						_react2.default.createElement(_reactRouterDom.Route, { path: '/articles/create', component: _NewArticle2.default }),
 						_react2.default.createElement(_reactRouterDom.Route, { path: '/articles', component: (0, _require_auth2.default)(_Articles2.default) }),
 						_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _Welcome2.default }),
 						_react2.default.createElement(_reactRouterDom.Route, { component: _NotFound2.default })
@@ -30933,11 +30955,6 @@ var Signin = function (_Component) {
   }
 
   _createClass(Signin, [{
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      this.props.clearErrors();
-    }
-  }, {
     key: 'handleFormSubmit',
     value: function handleFormSubmit(_ref) {
       var email = _ref.email,
@@ -40149,11 +40166,6 @@ var Signup = function (_Component) {
   }
 
   _createClass(Signup, [{
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      this.props.clearErrors();
-    }
-  }, {
     key: 'handleFormSubmit',
     value: function handleFormSubmit(formProps) {
       this.props.registerUser(formProps);
@@ -40196,6 +40208,11 @@ var Signup = function (_Component) {
             null,
             'Signup page'
           )
+        ),
+        this.props.message && _react2.default.createElement(
+          'div',
+          { className: 'alert alert-info' },
+          this.props.message
         ),
         _react2.default.createElement(
           'form',
@@ -40276,6 +40293,10 @@ var _actions = __webpack_require__(17);
 
 var actions = _interopRequireWildcard(_actions);
 
+var _history = __webpack_require__(97);
+
+var _history2 = _interopRequireDefault(_history);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -40301,6 +40322,13 @@ var Signout = function (_Component) {
       this.props.signoutUser();
     }
   }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      setTimeout(function () {
+        _history2.default.push('/signin');
+      }, 1000);
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
@@ -40313,7 +40341,7 @@ var Signout = function (_Component) {
         ),
         _react2.default.createElement(
           'div',
-          null,
+          { className: 'alert alert-info' },
           this.props.message
         )
       );
@@ -40472,12 +40500,17 @@ var Articles = function (_Component) {
         _react2.default.createElement(
           'div',
           { className: 'text-left' },
-          !!this.props.message && _react2.default.createElement(
+          !!this.props.message && this.props.deleted && _react2.default.createElement(
             'div',
-            { className: 'text-center allert' },
+            { className: 'text-center alert alert-info' },
             'Deleted ',
             this.props.message,
             ' articles'
+          ),
+          !!this.props.message && !this.props.deleted && _react2.default.createElement(
+            'div',
+            { className: 'text-center alert alert-info' },
+            this.props.message
           ),
           this.renderArticles(this.props.articles)
         )
@@ -40492,7 +40525,8 @@ function mapStateToProps(state) {
   return _extends({}, state, {
     articles: state.articles.articles,
     error: state.articles.error,
-    message: state.articles.message
+    message: state.articles.message,
+    deleted: state.articles.deleted
   });
 }
 
@@ -43410,6 +43444,11 @@ var ArticleForm = function (_Component) {
   }
 
   _createClass(ArticleForm, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      this.props.clearMessages();
+    }
+  }, {
     key: 'handleFormSubmit',
     value: function handleFormSubmit(formProps) {
       this.props.createArticle(formProps);
@@ -43420,7 +43459,7 @@ var ArticleForm = function (_Component) {
       if (this.props.error) {
         return _react2.default.createElement(
           'div',
-          { className: 'alert alert-danger' },
+          { className: 'alert alert-info' },
           _react2.default.createElement(
             'strong',
             null,
@@ -43434,7 +43473,9 @@ var ArticleForm = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      var handleSubmit = this.props.handleSubmit;
+      var _props = this.props,
+          handleSubmit = _props.handleSubmit,
+          author = _props.author;
 
       return _react2.default.createElement(
         'div',
@@ -43449,7 +43490,7 @@ var ArticleForm = function (_Component) {
           { className: 'alert' },
           this.props.message && _react2.default.createElement(
             'div',
-            null,
+            { className: 'alert alert-info' },
             _react2.default.createElement(
               'strong',
               null,
@@ -43463,7 +43504,7 @@ var ArticleForm = function (_Component) {
           'form',
           { onSubmit: handleSubmit(this.handleFormSubmit.bind(this)) },
           _react2.default.createElement(_reduxForm.Field, { name: 'votes', component: inputDisabledField, type: 'text', label: 'Votes' }),
-          _react2.default.createElement(_reduxForm.Field, { name: 'author', component: inputDisabledField, type: 'text', label: 'Author' }),
+          _react2.default.createElement(_reduxForm.Field, { name: 'author', component: inputDisabledField, type: 'text', label: 'Author', initial: author }),
           _react2.default.createElement(_reduxForm.Field, { name: 'title', component: inputField, type: 'text', label: 'Title' }),
           _react2.default.createElement(_reduxForm.Field, { name: 'url', component: inputField, type: 'text', label: 'Link' }),
           _react2.default.createElement(_reduxForm.Field, { name: 'author_name', component: inputField, type: 'text', label: 'Author name' }),
@@ -43488,8 +43529,11 @@ function validate(formProps) {
     errors.title = 'Please enter an title';
   }
 
+  var urlPattern = new RegExp('^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?');
   if (!formProps.url) {
     errors.url = 'Please enter a url';
+  } else if (!formProps.url.match(urlPattern)) {
+    errors.url = 'Please eneter a valid url';
   }
 
   if (!formProps.author_name) {
@@ -43502,7 +43546,8 @@ function validate(formProps) {
 function mapStateToProps(state) {
   return {
     error: state.articles.error,
-    message: state.articles.message
+    message: state.articles.message,
+    author: state.auth
   };
 }
 
@@ -43511,10 +43556,6 @@ ArticleForm = (0, _reactRedux.connect)(mapStateToProps, actions)(ArticleForm);
 exports.default = (0, _reduxForm.reduxForm)({
   form: 'createArticle',
   fields: ['votes', 'author', 'title', 'url', 'author_name'],
-  initialValues: {
-    'votes': "0",
-    'author': 'user'
-  },
   validate: validate
 })(ArticleForm);
 
@@ -43648,7 +43689,7 @@ exports.default = function () {
     case _types.FETCH_USER_FAILED:
       return _extends({}, state, { user: null });
     case _types.UNAUTH_USER:
-      return _extends({}, state, { authenticated: false, message: 'signed out' });
+      return _extends({}, state, { authenticated: false, user: null, message: 'signed out' });
     case _types.FETCH_MESSAGE:
       return _extends({}, state, { message: '' });
     case _types.FETCH_MESSAGE_FAILED:
@@ -43678,7 +43719,7 @@ exports.default = function () {
 
   switch (action.type) {
     case _types.FETCH_ARTICLES:
-      return _extends({}, state, { articles: action.payload, error: false, message: '', deleteList: [] });
+      return _extends({}, state, { articles: action.payload, error: '', message: '', deleteList: [] });
     case _types.FETCH_ARTICLES_FAILED:
       return _extends({}, state, { articles: [], error: 'Sign in to processed' });
     case _types.CREATE_ARTICLE:
@@ -43690,19 +43731,83 @@ exports.default = function () {
     case _types.REMOVE_FROM_DELETE_LIST:
       return _extends({}, state, { deleteList: action.payload });
     case _types.DELETE_ARTICLES:
-      return _extends({}, state, { deleteList: [], message: action.payload });
+      return _extends({}, state, { deleteList: [], message: action.payload, deleted: true });
     case _types.DELETE_ARTICLES_FAILED:
-      return _extends({}, state, { deleteList: [], message: action.payload });
+      return _extends({}, state, { deleteList: [], message: action.payload, deleted: false });
     case _types.VOTE_SUCCESS:
-      return _extends({}, state, { message: 'successifuly votes' });
+      return _extends({}, state, { message: action.payload.message });
     case _types.VOTE_FAILED:
       return _extends({}, state, { message: 'vote failed' });
+    case _types.CLEAR_MESSAGES:
+      return _extends({}, state, { message: '' });
   }
 
   return state;
 };
 
 var _types = __webpack_require__(40);
+
+/***/ }),
+/* 422 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _ArticleForm = __webpack_require__(416);
+
+var _ArticleForm2 = _interopRequireDefault(_ArticleForm);
+
+var _reactRedux = __webpack_require__(6);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var NewArticle = function (_Component) {
+  _inherits(NewArticle, _Component);
+
+  function NewArticle() {
+    _classCallCheck(this, NewArticle);
+
+    return _possibleConstructorReturn(this, (NewArticle.__proto__ || Object.getPrototypeOf(NewArticle)).apply(this, arguments));
+  }
+
+  _createClass(NewArticle, [{
+    key: 'render',
+    value: function render() {
+      var initialValues = {
+        'votes': '0',
+        'author': this.props.author
+      };
+      return _react2.default.createElement(_ArticleForm2.default, { initialValues: initialValues });
+    }
+  }]);
+
+  return NewArticle;
+}(_react.Component);
+
+function mapStateToProps(state) {
+  return {
+    author: state.auth.user.username
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, null)(NewArticle);
 
 /***/ })
 /******/ ]);

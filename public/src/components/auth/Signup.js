@@ -21,9 +21,6 @@ const inputField = (props) => {
 };
 
 class Signup extends Component {
-  componentWillUnmount() {
-    this.props.clearErrors();
-  }
 
   handleFormSubmit(formProps) {
     this.props.registerUser(formProps);
@@ -48,6 +45,7 @@ class Signup extends Component {
         <div className="text-center">
           <h4>Signup page</h4>
         </div>
+        {this.props.message && <div className="alert alert-info">{this.props.message}</div>}
         <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
           <Field name="email" component={inputField} type="email" label="Email" />
           <Field name="password" component={inputField} type="password" label="Password" />

@@ -35,7 +35,7 @@ exports.createArticle = function(req, res, next) {
     if (err) {
       return next(err);
     }
-    res.json({ message: 'Article succsecfuly added' });
+    res.json({ message: 'Article added' });
   });
 };
 
@@ -62,14 +62,19 @@ exports.voteArticle = function(req, res, next) {
         error:"No such article"
       })
     }
+    const isGratherVote = article.votes[userId] < vote;
+    let initialMesage = 'You have allready voted'
+    let message = isGratherVote ? 'You have upvoted.' :
+    'You have downvoted.';
 
-    const votes = article.votes;
+    message = article.votes[userId] === vote ? initialMesage : message;
 
-    votes[userId] = vote; // can be 1 or -1
+    article.votes = Object.assign(article.votes, { [userId]: vote });
+    article.markModified('votes');
 
     let voteCount = 0;
-    for(key in votes) {
-      voteCount += votes[key];
+    for(key in article.votes) {
+      voteCount += article.votes[key];
     }
 
     article.rating = voteCount;
@@ -81,7 +86,10 @@ exports.voteArticle = function(req, res, next) {
         });
       }
 
-      res.send(article);
+      res.send({
+        article: article,
+        message: message
+      });
     });
   });
 

@@ -21,9 +21,6 @@ const inputField = (props) => {
 };
 
 class Signin extends Component {
-  componentWillUnmount() {
-    this.props.clearErrors();
-  }
   handleFormSubmit({ email, password }) {
     this.props.signinUser({ email, password });
   }

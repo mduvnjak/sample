@@ -60,8 +60,11 @@ class Articles extends Component {
           </div>
         </div>
         <div className="text-left">
-          {!!this.props.message &&
-            <div className="text-center allert">Deleted {this.props.message} articles</div>
+          {!!this.props.message && this.props.deleted &&
+            <div className="text-center alert alert-info">Deleted {this.props.message} articles</div>
+          }
+          {!!this.props.message && !this.props.deleted &&
+            <div className="text-center alert alert-info">{this.props.message}</div>
           }
           {this.renderArticles(this.props.articles)}
         </div>
@@ -75,7 +78,8 @@ function mapStateToProps(state) {
     ...state,
     articles: state.articles.articles,
     error: state.articles.error,
-    message: state.articles.message
+    message: state.articles.message,
+    deleted: state.articles.deleted
   };
 }
 

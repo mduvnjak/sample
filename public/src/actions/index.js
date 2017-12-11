@@ -9,7 +9,8 @@ import {
   CREATE_ARTICLE, CREATE_ARTICLE_FAILED,
   ADD_TO_DELETE_LIST, REMOVE_FROM_DELETE_LIST,
   DELETE_ARTICLES, DELETE_ARTICLES_FAILED,
-  VOTE_SUCCESS, VOTE_FAILED
+  VOTE_SUCCESS, VOTE_FAILED,
+  CLEAR_MESSAGES
 } from './types';
 
 export function fetchUser(token) {
@@ -65,6 +66,9 @@ export function registerUser(user) {
           type: REGISTER_USER_SUCCESS,
           res
         })
+        setTimeout(function () {
+          history.push('/signin');
+        }, 1000);
       })
       .catch(function (err) {
         dispatch({
@@ -91,9 +95,9 @@ export function signoutUser() {
   }
 }
 
-export function clearErrors() {
+export function clearMessages() {
   return {
-    type: AUTH_USER
+    type: CLEAR_MESSAGES
   }
 }
 
@@ -185,6 +189,20 @@ export function deleteArticles() {
     const list = getState().articles.deleteList || [];
     const token = localStorage.getItem('token');
 
+    if (!list.length){
+      if (!getState().articles.articles.length) {
+        dispatch({
+          type: DELETE_ARTICLES_FAILED,
+          payload:'No articles'
+        })
+      } else {
+        dispatch({
+          type: DELETE_ARTICLES_FAILED,
+          payload:' Select article to delete'
+        })
+      }
+      return false;
+    }
     axios({
       method: 'post',
       url: '/api/articles/delete',
@@ -204,7 +222,7 @@ export function deleteArticles() {
     })
     .catch(function (err) {
       dispatch({
-        type: DELETE_ARTICLES,
+        type: DELETE_ARTICLES_FAILED,
         payload: err
       })
     });
@@ -228,8 +246,11 @@ export function voteArticle(userId, articleId, vote) {
     .then(function (response) {
       dispatch({
         type: VOTE_SUCCESS,
-        payload: response
+        payload: response.data
       })
+      setTimeout(function () {
+        history.go('/articles');
+      }, 1000);
     })
     .catch(function (err) {
       dispatch({
